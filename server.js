@@ -45,4 +45,10 @@ app.get('/api/download', async (req, res) => {
 // ГЛОБАЛЬНЫЙ ПРЕДОХРАНИТЕЛЬ: чтобы сервер не падал никогда
 process.on('uncaughtException', (err) => console.error('🔥 Критическая ошибка:', err));
 
-app.listen(PORT, () => console.log(`🚀 Pulsar: Сервер запущен на порту ${PORT}!`));
+// Порт выдаст Render, либо используем 3001 локально
+const PORT = process.env.PORT || 3001;
+
+// Важно: добавляем '0.0.0.0', чтобы облако нас увидело!
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Pulsar: Сервер запущен на порту ${PORT}!`);
+});
