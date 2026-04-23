@@ -15,11 +15,16 @@ app.get('/api/search', async (req, res) => {
 
 app.get('/api/download', async (req, res) => {
   const videoId = req.query.id;
+  // Проверка на пустой ID (защита от тех самых кавычек)
+  if (!videoId || videoId === '${safeTrack.id}') {
+    return res.status(400).send('Invalid ID');
+  }
+
   const url = `https://www.youtube.com/watch?v=${videoId}`;
   console.log(`🚀 Начинаю загрузку: ${videoId}`);
 
   res.header('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
-  res.header('Content-Type', 'audio/mpeg'); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+  res.header('Content-Type', 'audio/mpeg');
   res.header('Access-Control-Allow-Origin', '*');
   
   try {
@@ -30,9 +35,14 @@ app.get('/api/download', async (req, res) => {
       quiet: true,
     }, { stdio: ['ignore', 'pipe', 'pipe'] });
 
+    // Направляем поток данных в ответ браузеру
     subprocess.stdout.pipe(res);
 
-    // Важно: не даем серверу упасть, если процесс завершился с ошибкой
+    // Если клиент (телефон) закрыл соединение, убиваем процесс загрузки
+    req.on('close', () => {
+      subprocess.kill();
+    });
+
     subprocess.on('error', (err) => {
       console.error('⚠️ Ошибка процесса:', err.message);
       if (!res.headersSent) res.status(500).end();
