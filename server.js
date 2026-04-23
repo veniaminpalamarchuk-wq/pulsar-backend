@@ -20,6 +20,7 @@ app.get('/api/download', async (req, res) => {
 
   res.header('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
   res.header('Content-Type', 'audio/mpeg'); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+  res.header('Access-Control-Allow-Origin', '*');
   
   try {
     const subprocess = youtubedl.exec(url, {
