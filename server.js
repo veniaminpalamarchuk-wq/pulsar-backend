@@ -19,6 +19,7 @@ app.get('/api/download', async (req, res) => {
   console.log(`🚀 Начинаю загрузку: ${videoId}`);
 
   res.header('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
+  res.header('Content-Type', 'audio/mpeg'); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
   
   try {
     const subprocess = youtubedl.exec(url, {
